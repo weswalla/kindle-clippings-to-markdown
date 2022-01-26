@@ -1,5 +1,7 @@
 const fs = require('fs')
+const path = require('path')
 const books = require('./store/books.json')
+const outputPath = '/home/wesley/Dropbox/3_Resources/kindle_notes'
 const NEXTCLIP = '\r\n\n---\r\n\n'
 
 let title = 'Permanent Record (Edward Snowden)'
@@ -29,5 +31,5 @@ for (const title in books) {
             markdownContents = markdownContents + bookHighlights[location].content + `(loc.${location}` + pageNumber + ')' + NEXTCLIP
         }
     }
-    fs.writeFileSync(`./output/books/${title}.md`, markdownContents, 'utf8')
+    fs.writeFileSync(path.join(outputPath, `/books/${title}.md`), markdownContents, 'utf8')
 }
