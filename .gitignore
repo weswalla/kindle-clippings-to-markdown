@@ -2,3 +2,4 @@
 output/*
 store/*
 fetch_kindle_clippings.sh
+config.json
