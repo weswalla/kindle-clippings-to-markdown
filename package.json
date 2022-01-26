@@ -1,0 +1,11 @@
+{
+  "name": "kindle-clippings-markdown-formatter",
+  "version": "1.0.0",
+  "description": "convert kindle clippings into separate markdown files",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Wesley Finck",
+  "license": "ISC"
+}
