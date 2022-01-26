@@ -19,12 +19,6 @@ catch (err) {
 
 let clips = clippingText.split(BOUNDARY)
 let clippings = {}
-// for each clip in clips, extract salient info
-// - title
-// - is highlight or note & location (range)
-// - content
-// console.log(clips[index].split(NEWLINE))
-// console.log(checkClipType(clips[index].split(NEWLINE)[1]))
 for(let clip of clips) {
     let lines = clip.split(NEWLINE)
     if(lines.length !== 4) {
@@ -43,9 +37,9 @@ for(let clip of clips) {
         }
     }
     // process metadata
-    // is highlight or note, location
     let content = lines[3]
     if(metadata.isHighlight) {
+        // this is done to avoid trying to access a key of an object that doesn't exist
         if(!clippings[title]){
             clippings[title] = {}
         }
@@ -72,8 +66,7 @@ for(let clip of clips) {
         }
     }
 }
-// console.log(books)
-fs.writeFileSync('./clippings.json', JSON.stringify(clippings), 'utf8')
+fs.writeFileSync('./store/clippings.json', JSON.stringify(clippings), 'utf8')
 
 function checkClipType(clipMeta) {
     let isHighlight
@@ -83,6 +76,7 @@ function checkClipType(clipMeta) {
     let page = null
     if(clipMeta.includes(HIGHLIGHT)) {
         isHighlight = true
+        // only take the first number in the range, may have to reconsider this at some point
         // regexPattern = /Location (\d+)-(\d+)/
         regexPattern = /Location (\d+)/
         let match = clipMeta.match(regexPattern) 
@@ -133,5 +127,5 @@ for (const title in clippings) {
     books[title] = clippings[title]
 }
 
-fs.writeFileSync('./books.json', JSON.stringify(books), 'utf8')
-fs.writeFileSync('./articles.json', JSON.stringify(articles), 'utf8')
+fs.writeFileSync('./store/books.json', JSON.stringify(books), 'utf8')
+fs.writeFileSync('./store/articles.json', JSON.stringify(articles), 'utf8')
