@@ -1,17 +1,11 @@
 const fs = require('fs')
 const path = require('path')
-// const { outputDir } = require('./config.json')
-const outputDir = './test/'
+const { outputDir } = require('./config.json')
 const NEXTCLIP = '\r\n\n---\r\n\n'
 const formattedArticles = require('./store/formatted-articles.json')
 
-// get the no title, then delete it from the object
-
-if ('no title' in formattedArticles) {
+function orderAndFormatHighlights(bookHighlights) {
     let markdownContents = ''
-    let bookHighlights = formattedArticles['no title']
-
-    // order the bookhighlights
     let clipLocations = Object.keys(bookHighlights)
     clipLocations.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
 
@@ -24,51 +18,51 @@ if ('no title' in formattedArticles) {
             markdownContents = markdownContents + bookHighlights[location].content + `(loc.${location}` + pageNumber + ')' + NEXTCLIP
         }
     }
-    // delete the no title, then get keys and make as markdown links
-    fs.writeFileSync(path.join(outputDir, `/instapaper/${title}.md`), markdownContents, 'utf8')
+    return markdownContents
 }
+
+function formatArticleTitle(originalTitle) {
+    const titleRegex = /(.+) ((?:\S+\.\S+\.\S+|\S+\.\S+))/
+    const regexMatch = originalTitle.match(titleRegex)
+    if (regexMatch) {
+        const articleTitle = regexMatch[1]
+        const website = regexMatch[2]
+        return { articleTitle, website }
+    }
+    else {
+        console.log(originalTitle)
+        const articleTitle = originalTitle
+        const website = ''
+        return { articleTitle, website }
+    }
+}
+
 for (const title in formattedArticles) {
 
     if ('no title' in formattedArticles[title]) {
-        let markdownContents = ''
         let bookHighlights = formattedArticles[title]['no title']
-
-        // order the bookhighlights
-        let clipLocations = Object.keys(bookHighlights)
-        clipLocations.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
-
-        for (const location of clipLocations) {
-            if(location in bookHighlights) {
-                let pageNumber = ''
-                if(bookHighlights[location].page) {
-                    pageNumber = ` p.${bookHighlights[location].page}`
-                }
-                markdownContents = markdownContents + bookHighlights[location].content + `(loc.${location}` + pageNumber + ')' + NEXTCLIP
-            }
-        }
-        // delete the no title, then get keys and make as markdown links
+        let markdownContents = orderAndFormatHighlights(bookHighlights)
+        // add markdown title links
+        // let titleLinks = ''        
+        // const articles = Object.keys(formattedArticles[title])
+        // console.log(articles)
+        // for (articleTitle of articles) {
+        //     if(articleTitle !== 'no title') {
+        //         const { formattedTitle } = formatArticleTitle(articleTitle)
+        //         titleLinks = titleLinks + `\r\n[[${formattedTitle}]]`
+        //     }
+        // }
+        // markdownContents = markdownContents + '\n' + titleLinks
         fs.writeFileSync(path.join(outputDir, `/instapaper/${title}.md`), markdownContents, 'utf8')
     }
 
     //loop through each article from each instapaper book
     for (const article in formattedArticles[title]) {
         if(article !== 'no title') {
-            let markdownContents = ''
+            const { articleTitle, website } = formatArticleTitle(article)
             let bookHighlights = formattedArticles[title][article]
-            // order the bookhighlights
-            let clipLocations = Object.keys(bookHighlights)
-            clipLocations.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
-        
-            for (const location of clipLocations) {
-                if(location in bookHighlights) {
-                    let pageNumber = ''
-                    if(bookHighlights[location].page) {
-                        pageNumber = ` p.${bookHighlights[location].page}`
-                    }
-                    markdownContents = markdownContents + bookHighlights[location].content + `(loc.${location}` + pageNumber + ')' + NEXTCLIP
-                }
-            }
-            fs.writeFileSync(path.join(outputDir, `/articles/${article}.md`), markdownContents, 'utf8')
+            let markdownContents = `[[${title}]]\r\nsource: ${website}` + NEXTCLIP + orderAndFormatHighlights(bookHighlights)
+            fs.writeFileSync(path.join(outputDir, `/articles/${articleTitle}.md`), markdownContents, 'utf8')
         }
     }
 }
