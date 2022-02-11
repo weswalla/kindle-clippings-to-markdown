@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const { outputDir } = require('./config.json')
 const NEXTCLIP = '\r\n\n---\r\n\n'
-const combined = require('./store/books-combined.js')
+const combined = require('./store/books-combined.json')
 
 
 for (const title in combined) {
