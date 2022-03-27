@@ -3,6 +3,7 @@ const path = require('path')
 const { outputDir } = require('./config.json')
 const NEXTCLIP = '\r\n\n---\r\n\n'
 const formattedArticles = require('./store/formatted-articles.json')
+const illegalCharacters = ['#', '<', '>', '%', '&', '{', '}', '/', '$', '!', ':', '@', '|', '=']
 
 function orderAndFormatHighlights(bookHighlights) {
     let markdownContents = ''
@@ -24,17 +25,22 @@ function orderAndFormatHighlights(bookHighlights) {
 function formatArticleTitle(originalTitle) {
     const titleRegex = /(.+) ((?:\S+\.\S+\.\S+|\S+\.\S+))/
     const regexMatch = originalTitle.match(titleRegex)
+    let articleTitle
+    let website
     if (regexMatch) {
-        const articleTitle = regexMatch[1]
-        const website = regexMatch[2]
-        return { articleTitle, website }
+        articleTitle = regexMatch[1]
+        website = regexMatch[2]
     }
     else {
         console.log(originalTitle)
-        const articleTitle = originalTitle
-        const website = ''
-        return { articleTitle, website }
+        articleTitle = originalTitle
+        website = ''
     }
+    // replace the illegal characters
+    for (illegalCharacter of illegalCharacters) {
+        articleTitle = articleTitle.replace(new RegExp(String.raw`${illegalCharacter}`, 'g'), "")
+    }
+    return { articleTitle, website }
 }
 
 for (const title in formattedArticles) {
